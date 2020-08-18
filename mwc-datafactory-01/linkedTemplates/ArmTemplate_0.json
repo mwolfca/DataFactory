@@ -1,0 +1,644 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "mwc-datafactory-01"
+		},
+		"LogDatabase_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LogDatabase'"
+		},
+		"LogStorageAccount_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LogStorageAccount'"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/LogDatabase')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('LogDatabase_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LogStorageAccount')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('LogStorageAccount_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_y4m')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LogDatabase",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo.Logs",
+					"table": "Azure Blob Storage file"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LogDatabase')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_y4m')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LogStorageAccount",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "credicards.csv",
+						"container": "logdata"
+					},
+					"columnDelimiter": ";",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Time",
+						"type": "String"
+					},
+					{
+						"name": "V1",
+						"type": "String"
+					},
+					{
+						"name": "V2",
+						"type": "String"
+					},
+					{
+						"name": "V3",
+						"type": "String"
+					},
+					{
+						"name": "V4",
+						"type": "String"
+					},
+					{
+						"name": "V5",
+						"type": "String"
+					},
+					{
+						"name": "V6",
+						"type": "String"
+					},
+					{
+						"name": "V7",
+						"type": "String"
+					},
+					{
+						"name": "V8",
+						"type": "String"
+					},
+					{
+						"name": "V9",
+						"type": "String"
+					},
+					{
+						"name": "V10",
+						"type": "String"
+					},
+					{
+						"name": "V11",
+						"type": "String"
+					},
+					{
+						"name": "V12",
+						"type": "String"
+					},
+					{
+						"name": "V13",
+						"type": "String"
+					},
+					{
+						"name": "V14",
+						"type": "String"
+					},
+					{
+						"name": "V15",
+						"type": "String"
+					},
+					{
+						"name": "V16",
+						"type": "String"
+					},
+					{
+						"name": "V17",
+						"type": "String"
+					},
+					{
+						"name": "V18",
+						"type": "String"
+					},
+					{
+						"name": "V19",
+						"type": "String"
+					},
+					{
+						"name": "V20",
+						"type": "String"
+					},
+					{
+						"name": "V21",
+						"type": "String"
+					},
+					{
+						"name": "V22",
+						"type": "String"
+					},
+					{
+						"name": "V23",
+						"type": "String"
+					},
+					{
+						"name": "V24",
+						"type": "String"
+					},
+					{
+						"name": "V25",
+						"type": "String"
+					},
+					{
+						"name": "V26",
+						"type": "String"
+					},
+					{
+						"name": "V27",
+						"type": "String"
+					},
+					{
+						"name": "V28",
+						"type": "String"
+					},
+					{
+						"name": "Amount",
+						"type": "String"
+					},
+					{
+						"name": "Class",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LogStorageAccount')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LogToDatabase')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy_y4m",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "logdata//credicards.csv"
+							},
+							{
+								"name": "Destination",
+								"value": "dbo.Logs.Azure Blob Storage file"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings",
+									"skipLineCount": 0
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"tableOption": "autoCreate"
+							},
+							"enableStaging": false,
+							"validateDataConsistency": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "Time",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Time",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V1",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V1",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V2",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V2",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V3",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V3",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V4",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V4",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V5",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V5",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V6",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V6",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V7",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V7",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V8",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V8",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V9",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V9",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V10",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V10",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V11",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V11",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V12",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V12",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V13",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V13",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V14",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V14",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V15",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V15",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V16",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V16",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V17",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V17",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V18",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V18",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V19",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V19",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V20",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V20",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V21",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V21",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V22",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V22",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V23",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V23",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V24",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V24",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V25",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V25",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V26",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V26",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V27",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V27",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "V28",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "V28",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Amount",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Amount",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "Class",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Class",
+											"type": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "SourceDataset_y4m",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DestinationDataset_y4m",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SourceDataset_y4m')]",
+				"[concat(variables('factoryId'), '/datasets/DestinationDataset_y4m')]"
+			]
+		}
+	]
+}
