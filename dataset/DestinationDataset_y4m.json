@@ -1,0 +1,16 @@
+{
+	"name": "DestinationDataset_y4m",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LogDatabase",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo.Logs",
+			"table": "Azure Blob Storage file"
+		}
+	}
+}
